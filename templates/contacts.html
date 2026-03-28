@@ -1,1 +1,31 @@
-
+{% extends "base.html" %}
+{% block title %}Contacts{% endblock %}
+{% block content %}
+<h1>Contacts</h1>
+<p><a class="btn" href="{{ url_for('new_contact') }}">Add New Contact</a></p>
+{% if contacts %}
+<table>
+<thead><tr><th>ID</th><th>Company</th><th>Contact Name</th><th>Title</th><th>Email</th><th>Phone</th><th>LinkedIn</th><th>Notes</th><th>Actions</th></tr></thead>
+<tbody>
+{% for contact in contacts %}
+<tr>
+<td>{{ contact.contact_id }}</td>
+<td>{{ contact.company_name or "" }}</td>
+<td>{{ contact.contact_name }}</td>
+<td>{{ contact.title or "" }}</td>
+<td>{{ contact.email or "" }}</td>
+<td>{{ contact.phone or "" }}</td>
+<td>{% if contact.linkedin_url %}<a href="{{ contact.linkedin_url }}" target="_blank">Profile</a>{% endif %}</td>
+<td>{{ contact.notes or "" }}</td>
+<td>
+<a class="btn" href="{{ url_for('edit_contact', contact_id=contact.contact_id) }}">Edit</a>
+<form class="inline" method="POST" action="{{ url_for('remove_contact', contact_id=contact.contact_id) }}" onsubmit="return confirm('Delete this contact?');">
+<button type="submit" class="btn btn-danger">Delete</button>
+</form>
+</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+{% else %}<p class="muted">No contacts found.</p>{% endif %}
+{% endblock %}

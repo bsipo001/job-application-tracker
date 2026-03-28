@@ -1,1 +1,21 @@
-
+{% extends "base.html" %}
+{% block title %}{% if company %}Edit Company{% else %}Add Company{% endif %}{% endblock %}
+{% block content %}
+<h1>{% if company %}Edit Company{% else %}Add New Company{% endif %}</h1>
+<form method="POST">
+<label>Company Name *</label>
+<input type="text" name="company_name" value="{{ company.company_name if company else '' }}" required>
+<div class="grid-2">
+<div><label>Industry</label><input type="text" name="industry" value="{{ company.industry if company else '' }}"></div>
+<div><label>Website</label><input type="url" name="website" value="{{ company.website if company else '' }}"></div>
+</div>
+<div class="grid-2">
+<div><label>City</label><input type="text" name="city" value="{{ company.city if company else '' }}"></div>
+<div><label>State</label><input type="text" name="state" value="{{ company.state if company else '' }}"></div>
+</div>
+<label>Notes</label>
+<textarea name="notes">{{ company.notes if company else '' }}</textarea>
+<button type="submit" class="btn">Save</button>
+<a class="btn btn-secondary" href="{{ url_for('companies') }}">Cancel</a>
+</form>
+{% endblock %}

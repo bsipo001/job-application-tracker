@@ -1,1 +1,31 @@
-
+{% extends "base.html" %}
+{% block title %}Applications{% endblock %}
+{% block content %}
+<h1>Applications</h1>
+<p><a class="btn" href="{{ url_for('new_application') }}">Add New Application</a></p>
+{% if applications %}
+<table>
+<thead><tr><th>ID</th><th>Company</th><th>Job Title</th><th>Application Date</th><th>Status</th><th>Resume Version</th><th>Cover Letter</th><th>Interview Data</th><th>Actions</th></tr></thead>
+<tbody>
+{% for application in applications %}
+<tr>
+<td>{{ application.application_id }}</td>
+<td>{{ application.company_name or "" }}</td>
+<td>{{ application.job_title or "" }}</td>
+<td>{{ application.application_date }}</td>
+<td>{{ application.status or "" }}</td>
+<td>{{ application.resume_version or "" }}</td>
+<td>{{ "Yes" if application.cover_letter_sent else "No" }}</td>
+<td>{% if application.interview_data %}{{ application.interview_data }}{% endif %}</td>
+<td>
+<a class="btn" href="{{ url_for('edit_application', application_id=application.application_id) }}">Edit</a>
+<form class="inline" method="POST" action="{{ url_for('remove_application', application_id=application.application_id) }}" onsubmit="return confirm('Delete this application?');">
+<button type="submit" class="btn btn-danger">Delete</button>
+</form>
+</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+{% else %}<p class="muted">No applications found.</p>{% endif %}
+{% endblock %}

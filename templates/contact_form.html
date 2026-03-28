@@ -1,1 +1,28 @@
-
+{% extends "base.html" %}
+{% block title %}{% if contact %}Edit Contact{% else %}Add Contact{% endif %}{% endblock %}
+{% block content %}
+<h1>{% if contact %}Edit Contact{% else %}Add New Contact{% endif %}</h1>
+<form method="POST">
+<label>Company</label>
+<select name="company_id">
+<option value="">-- Select Company --</option>
+{% for company in companies %}
+<option value="{{ company.company_id }}" {% if contact and contact.company_id == company.company_id %}selected{% endif %}>{{ company.company_name }}</option>
+{% endfor %}
+</select>
+<label>Contact Name *</label>
+<input type="text" name="contact_name" value="{{ contact.contact_name if contact else '' }}" required>
+<div class="grid-2">
+<div><label>Title</label><input type="text" name="title" value="{{ contact.title if contact else '' }}"></div>
+<div><label>Email</label><input type="email" name="email" value="{{ contact.email if contact else '' }}"></div>
+</div>
+<div class="grid-2">
+<div><label>Phone</label><input type="text" name="phone" value="{{ contact.phone if contact else '' }}"></div>
+<div><label>LinkedIn URL</label><input type="url" name="linkedin_url" value="{{ contact.linkedin_url if contact else '' }}"></div>
+</div>
+<label>Notes</label>
+<textarea name="notes">{{ contact.notes if contact else '' }}</textarea>
+<button type="submit" class="btn">Save</button>
+<a class="btn btn-secondary" href="{{ url_for('contacts') }}">Cancel</a>
+</form>
+{% endblock %}

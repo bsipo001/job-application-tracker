@@ -1,1 +1,30 @@
-
+{% extends "base.html" %}
+{% block title %}Companies{% endblock %}
+{% block content %}
+<h1>Companies</h1>
+<p><a class="btn" href="{{ url_for('new_company') }}">Add New Company</a></p>
+{% if companies %}
+<table>
+<thead><tr><th>ID</th><th>Company Name</th><th>Industry</th><th>Website</th><th>City</th><th>State</th><th>Notes</th><th>Actions</th></tr></thead>
+<tbody>
+{% for company in companies %}
+<tr>
+<td>{{ company.company_id }}</td>
+<td>{{ company.company_name }}</td>
+<td>{{ company.industry or "" }}</td>
+<td>{% if company.website %}<a href="{{ company.website }}" target="_blank">{{ company.website }}</a>{% endif %}</td>
+<td>{{ company.city or "" }}</td>
+<td>{{ company.state or "" }}</td>
+<td>{{ company.notes or "" }}</td>
+<td>
+<a class="btn" href="{{ url_for('edit_company', company_id=company.company_id) }}">Edit</a>
+<form class="inline" method="POST" action="{{ url_for('remove_company', company_id=company.company_id) }}" onsubmit="return confirm('Delete this company?');">
+<button type="submit" class="btn btn-danger">Delete</button>
+</form>
+</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+{% else %}<p class="muted">No companies found.</p>{% endif %}
+{% endblock %}

@@ -1,1 +1,38 @@
-
+{% extends "base.html" %}
+{% block title %}{% if job %}Edit Job{% else %}Add Job{% endif %}{% endblock %}
+{% block content %}
+<h1>{% if job %}Edit Job{% else %}Add New Job{% endif %}</h1>
+<form method="POST">
+<label>Company</label>
+<select name="company_id">
+<option value="">-- Select Company --</option>
+{% for company in companies %}
+<option value="{{ company.company_id }}" {% if job and job.company_id == company.company_id %}selected{% endif %}>{{ company.company_name }}</option>
+{% endfor %}
+</select>
+<label>Job Title *</label>
+<input type="text" name="job_title" value="{{ job.job_title if job else '' }}" required>
+<div class="grid-2">
+<div>
+<label>Job Type</label>
+<select name="job_type">
+<option value="">-- Select Type --</option>
+{% for jt in ['Full-time','Part-time','Contract','Internship'] %}
+<option value="{{ jt }}" {% if job and job.job_type == jt %}selected{% endif %}>{{ jt }}</option>
+{% endfor %}
+</select>
+</div>
+<div><label>Date Posted</label><input type="date" name="date_posted" value="{{ job.date_posted if job and job.date_posted else '' }}"></div>
+</div>
+<div class="grid-2">
+<div><label>Salary Min</label><input type="number" name="salary_min" value="{{ job.salary_min if job and job.salary_min is not none else '' }}"></div>
+<div><label>Salary Max</label><input type="number" name="salary_max" value="{{ job.salary_max if job and job.salary_max is not none else '' }}"></div>
+</div>
+<label>Job URL</label>
+<input type="url" name="job_url" value="{{ job.job_url if job else '' }}">
+<label>Requirements (comma-separated)</label>
+<textarea name="requirements">{% if job and job.requirements %}{{ job.requirements | join(', ') }}{% endif %}</textarea>
+<button type="submit" class="btn">Save</button>
+<a class="btn btn-secondary" href="{{ url_for('jobs') }}">Cancel</a>
+</form>
+{% endblock %}

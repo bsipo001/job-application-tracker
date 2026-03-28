@@ -1,1 +1,24 @@
-
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<h1>Job Application Tracker Dashboard</h1>
+<div class="stats">
+    <div class="card"><h3>Total Companies</h3><p>{{ stats.total_companies }}</p></div>
+    <div class="card"><h3>Total Jobs</h3><p>{{ stats.total_jobs }}</p></div>
+    <div class="card"><h3>Total Applications</h3><p>{{ stats.total_applications }}</p></div>
+    <div class="card"><h3>Total Contacts</h3><p>{{ stats.total_contacts }}</p></div>
+</div>
+<h2>Applications by Status</h2>
+{% if stats.status_counts %}
+<table>
+<thead><tr><th>Status</th><th>Count</th></tr></thead>
+<tbody>
+{% for row in stats.status_counts %}
+<tr><td>{{ row.status }}</td><td>{{ row.count }}</td></tr>
+{% endfor %}
+</tbody>
+</table>
+{% else %}
+<p class="muted">No application records found yet.</p>
+{% endif %}
+{% endblock %}
