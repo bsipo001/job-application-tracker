@@ -6,6 +6,7 @@ from database import (
     get_applications, get_application, create_application, update_application, delete_application,
     get_contacts, get_contact, create_contact, update_contact, delete_contact
 )
+import json
 
 app = Flask(__name__)
 app.secret_key = "job_tracker_secret_key"
@@ -427,6 +428,56 @@ def remove_contact(contact_id):
 # JOB MATCH ROUTE
 # ==========================
 
+def extract_job_skills(raw_requirements):
+    job_skills = []
+
+    if not raw_requirements:
+        return []
+
+    if isinstance(raw_requirements, list):
+        job_skills.extend(raw_requirements)
+    elif isinstance(raw_requirements, dict):
+        required_skills = raw_requirements.get("required_skills", [])
+        preferred_skills = raw_requirements.get("preferred_skills", [])
+
+        if isinstance(required_skills, list):
+            job_skills.extend(required_skills)
+        if isinstance(preferred_skills, list):
+            job_skills.extend(preferred_skills)
+    elif isinstance(raw_requirements, str):
+        raw_requirements = raw_requirements.strip()
+
+        try:
+            parsed = json.loads(raw_requirements)
+
+            if isinstance(parsed, dict):
+                required_skills = parsed.get("required_skills", [])
+                preferred_skills = parsed.get("preferred_skills", [])
+
+                if isinstance(required_skills, list):
+                    job_skills.extend(required_skills)
+                if isinstance(preferred_skills, list):
+                    job_skills.extend(preferred_skills)
+            elif isinstance(parsed, list):
+                job_skills.extend(parsed)
+            elif isinstance(parsed, str):
+                job_skills.extend([item.strip() for item in parsed.split(",") if item.strip()])
+        except Exception:
+            job_skills.extend([
+                item.strip()
+                for item in raw_requirements.replace("\n", " ").split(",")
+                if item.strip()
+            ])
+
+    normalized_skills = []
+    for skill in job_skills:
+        skill_text = str(skill).strip().lower()
+        if skill_text and skill_text not in normalized_skills:
+            normalized_skills.append(skill_text)
+
+    return normalized_skills
+
+
 @app.route("/job-match", methods=["GET", "POST"])
 def job_match():
     results = []
@@ -440,15 +491,15 @@ def job_match():
         jobs_list = get_jobs()
 
         for job in jobs_list:
-            requirements = job.get("requirements", [])
-            normalized_requirements = [str(skill).strip().lower() for skill in requirements if str(skill).strip()]
+            raw_requirements = job.get("requirements", [])
+            normalized_requirements = extract_job_skills(raw_requirements)
             requirement_set = set(normalized_requirements)
 
             matched_skills = sorted(user_skill_set.intersection(requirement_set))
             missing_skills = sorted(requirement_set - user_skill_set)
 
-            if len(user_skill_set) > 0:
-                match_percentage = round((len(matched_skills) / len(user_skill_set)) * 100)
+            if len(requirement_set) > 0:
+                match_percentage = round((len(matched_skills) / len(requirement_set)) * 100)
             else:
                 match_percentage = 0
 
@@ -458,7 +509,7 @@ def job_match():
                 "company_name": job.get("company_name"),
                 "match_percentage": match_percentage,
                 "matched_count": len(matched_skills),
-                "user_skill_count": len(user_skill_set),
+                "user_skill_count": len(requirement_set),
                 "matched_skills": matched_skills,
                 "missing_skills": missing_skills
             })
